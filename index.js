@@ -23,10 +23,17 @@ function showDepartments() {
   const query = "SELECT name FROM department";
   connection.query(query, (err, res) => {
     if (err) throw err;
-    console.table("Departments", res);
+    const choices = [];
+    if(!res.length) {
+      console.log("There are no departments.");
+      choices.splice(0, 0, "Add a department", "Exit");
+    }
+    else {
+      console.table("Departments", res);
+      choices.splice(0, 0, "View a department", "Add a department", "Show all employees", "Exit");
+    }
     console.log("-------------------");
-    const choices = res.map(dept => dept.name);
-    choices.push("Add a department", "Show all employees", "Exit");
+
     inquirer
     .prompt({
       name: "action",
@@ -35,7 +42,11 @@ function showDepartments() {
       choices: choices
     })
     .then( ({ action }) => {
-      switch (action) {  
+      switch (action) {
+        case "View a department":
+          selectDepartment(res.map(dept => dept.name));
+          break;
+
         case "Add a department":
           addDepartment();
           break;
@@ -49,10 +60,22 @@ function showDepartments() {
           break;
 
         default:
-          showRoles(action);
-          break;
+          console.log("Unexpected selection");
       }
     });
+  });
+}
+
+function selectDepartment(departments) {
+  inquirer
+  .prompt({
+    name: "dept",
+    type: "list",
+    message: "Select:",
+    choices: departments
+  })
+  .then( ({ dept }) => {
+    showRoles(dept);
   });
 }
 
@@ -61,10 +84,16 @@ function showRoles(department) {
   const query = "SELECT title, salary FROM role INNER JOIN department on role.department_id = department.id WHERE department.name = ?";
   connection.query(query, [department], (err, res) => {
     if (err) throw err;
-    console.table(`${department} Roles`, res);
+    const choices = [];
+    if(!res.length) {
+      console.log("There are no roles for this department.");
+      choices.splice(0, 0, "Add a role", "Delete department", "Exit");
+    }
+    else {
+      console.table(`${department} Roles`, res);
+      choices.splice(0, 0, "View a role", "Add a role", "Show department employees", "Show department payroll", "Delete department", "Exit");
+    }
     console.log("-------------------");
-    const choices = res.map(role => role.title);
-    choices.push("Add a role", "Show department employees", "Show department payroll", "Delete department", "Exit");
 
     inquirer
     .prompt({
@@ -75,6 +104,10 @@ function showRoles(department) {
     })
     .then( ({ action }) => {
       switch (action) {  
+        case "View a role":
+          selectRole(res.map(role => role.title));
+          break;
+
         case "Add a role":
           addRole();
           break;
@@ -95,57 +128,85 @@ function showRoles(department) {
           break;
 
         default:
-          showEmployeesByRole(action);
-          break;
+          console.log("Unexpected selection");
       }
     });
   });
 }
 
+function selectRole(roles) {
+  inquirer
+  .prompt({
+    name: "role",
+    type: "list",
+    message: "Select:",
+    choices: roles
+  })
+  .then( ({ role }) => {
+    showEmployeesByRole(role);
+  });
+
+}
+
 function showEmployeesByRole(role) {
   console.log("*******************");
-  const query = "SELECT first_name, last_name FROM employee INNER JOIN role on employee.role_id = role.id WHERE role.title = ?";
-  connection.query(query, [department], (err, res) => {
+  // const query = "SELECT first_name, last_name FROM employee INNER JOIN role on employee.role_id = role.id WHERE role.title = ?";
+  // const query = "SELECT * FROM employee INNER JOIN role on employee.role_id = role.id WHERE role.title = ?";
+  const query = `SELECT employee.first_name, employee.last_name,
+  CONCAT(e2.first_name, " ", e2.last_name) AS manager_name
+  FROM employee
+  LEFT JOIN role r1 ON employee.role_id = r1.id
+  LEFT JOIN employee e2 ON (employee.manager_id=e2.id)
+  WHERE r1.title = ?;`
+
+  connection.query(query, [role], (err, res) => {
     if (err) throw err;
-    console.table(`${department} Roles`, res);
+    if(!res.length) {
+      console.log("There are no employees with that role.");
+    }
+    else {
+      console.table(`${role} Employees`, res);
+    }
     console.log("-------------------");
-    const choices = res.map(role => role.title);
-    choices.push("Add a role", "Show department employees", "Show department payroll", "Delete department", "Exit");
-
-    inquirer
-    .prompt({
-      name: "action",
-      type: "list",
-      message: "Select:",
-      choices: choices
-    })
-    .then( ({ action }) => {
-      switch (action) {  
-        case "Add a role":
-          addRole();
-          break;
-    
-        case "Show department employees":
-          showDeptEmployees(department);
-          break;
-      
-        case "Show department payroll":
-          showPayroll(department);
-          break;
-
-        case "Delete department":
-          deleteDepartment(department);
-
-        case "Exit":
-          connection.end();
-          break;
-
-        default:
-          showEmployeesByRole(action);
-          break;
-      }
-    });
   });
+  connection.end();
+  //   const choices = res.map(role => role.title);
+  //   choices.push("Add a role", "Show department employees", "Show department payroll", "Delete department", "Exit");
+
+  //   inquirer
+  //   .prompt({
+  //     name: "action",
+  //     type: "list",
+  //     message: "Select:",
+  //     choices: choices
+  //   })
+  //   .then( ({ action }) => {
+  //     switch (action) {  
+  //       case "Add a role":
+  //         addRole();
+  //         break;
+    
+  //       case "Show department employees":
+  //         showDeptEmployees(department);
+  //         break;
+      
+  //       case "Show department payroll":
+  //         showPayroll(department);
+  //         break;
+
+  //       case "Delete department":
+  //         deleteDepartment(department);
+
+  //       case "Exit":
+  //         connection.end();
+  //         break;
+
+  //       default:
+  //         showEmployeesByRole(action);
+  //         break;
+  //     }
+  //   });
+  // });
 }
 
 
