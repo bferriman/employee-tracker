@@ -145,14 +145,12 @@ function selectRole(roles) {
   .then( ({ role }) => {
     showEmployeesByRole(role);
   });
-
 }
 
 function showEmployeesByRole(role) {
   console.log("*******************");
-  // const query = "SELECT first_name, last_name FROM employee INNER JOIN role on employee.role_id = role.id WHERE role.title = ?";
-  // const query = "SELECT * FROM employee INNER JOIN role on employee.role_id = role.id WHERE role.title = ?";
-  const query = `SELECT employee.first_name, employee.last_name,
+  const query = `SELECT
+  CONCAT(employee.first_name, " ", employee.last_name) AS employee_name,
   CONCAT(e2.first_name, " ", e2.last_name) AS manager_name
   FROM employee
   LEFT JOIN role r1 ON employee.role_id = r1.id
@@ -161,54 +159,65 @@ function showEmployeesByRole(role) {
 
   connection.query(query, [role], (err, res) => {
     if (err) throw err;
+    const choices = [];
     if(!res.length) {
       console.log("There are no employees with that role.");
+      choices.splice(0, 0, "Add an employee", "Delete role", "Exit");
     }
     else {
       console.table(`${role} Employees`, res);
+      choices.splice(0, 0, "View an employee", "Add an employee", "Delete role", "Exit");
     }
     console.log("-------------------");
-  });
-  connection.end();
-  //   const choices = res.map(role => role.title);
-  //   choices.push("Add a role", "Show department employees", "Show department payroll", "Delete department", "Exit");
 
-  //   inquirer
-  //   .prompt({
-  //     name: "action",
-  //     type: "list",
-  //     message: "Select:",
-  //     choices: choices
-  //   })
-  //   .then( ({ action }) => {
-  //     switch (action) {  
-  //       case "Add a role":
-  //         addRole();
-  //         break;
+    inquirer
+    .prompt({
+      name: "action",
+      type: "list",
+      message: "Select:",
+      choices: choices
+    })
+    .then( ({ action }) => {
+      switch (action) {  
+        case "View an employee":
+          selectEmployee(res.map(emp => emp.employee_name));
+          break;
+
+        case "Add an employee":
+          addEmployee();
+          break;
     
-  //       case "Show department employees":
-  //         showDeptEmployees(department);
-  //         break;
-      
-  //       case "Show department payroll":
-  //         showPayroll(department);
-  //         break;
+        case "Delete role":
+          deleteRole(role);
+          break;
 
-  //       case "Delete department":
-  //         deleteDepartment(department);
+        case "Exit":
+          connection.end();
+          break;
 
-  //       case "Exit":
-  //         connection.end();
-  //         break;
-
-  //       default:
-  //         showEmployeesByRole(action);
-  //         break;
-  //     }
-  //   });
-  // });
+        default:
+          console.log("Unexpected selection");
+      }
+    });
+  });
 }
 
+function selectEmployee(employees) {
+  inquirer
+  .prompt({
+    name: "employee",
+    type: "list",
+    message: "Select:",
+    choices: employees
+  })
+  .then( ({ employee }) => {
+    showEmployee(employee);
+  });
+}
+
+function showEmployee(employee) {
+  console.log(employee);
+}
 
 function addDepartment() {
   console.log("Adding a department");
@@ -220,8 +229,18 @@ function addRole() {
   showDepartments();
 }
 
+function addEmployee() {
+  console.log("Adding an employee");
+  showDepartments();
+}
+
 function deleteDepartment(dept) {
   console.log("Deleting department: " + dept);
+  showDepartments();
+}
+
+function deleteRole(role) {
+  console.log("Deleting role: " + role);
   showDepartments();
 }
 
