@@ -17,6 +17,9 @@ connection.connect( err => {
   showDepartments();
 });
 
+let currentDept = null;
+let currentRole = null;
+let currentEmp = null;
 
 function showDepartments() {
   console.log("*******************");
@@ -84,6 +87,7 @@ function selectDepartment(rawDepartments) {
     choices: departments
   })
   .then( ({ dept }) => {
+    currentDept = dept;
     showRoles(dept);
   });
 }
@@ -131,6 +135,7 @@ function showRoles(dept) {
 
         case "Delete department":
           deleteDepartment(dept);
+          break;
 
         case "Exit":
           connection.end();
@@ -162,6 +167,7 @@ function selectRole(rawRoles) {
     choices: roles
   })
   .then( ({ role }) => {
+    currentRole = role;
     showEmployeesByRole(role);
   });
 }
@@ -242,6 +248,7 @@ function selectEmployee(employees) {
     choices: emps
   })
   .then( ({ employee }) => {
+    curentEmp = employee;
     showEmployee(employee);
   });
 }
@@ -282,11 +289,11 @@ function showEmployee(employee) {
       .then( ({ action }) => {
         switch (action) {  
           case "Edit first name":
-            editFirstName(employee.id);
+            editFirstName(employee);
             break;
   
           case "Edit last name":
-            editLastName(employee.id);
+            editLastName(employee);
             break;
       
           case "Assign new role":
@@ -298,7 +305,7 @@ function showEmployee(employee) {
             break;
 
           case "Delete employee":
-            deleteEmployee(employee.id);
+            deleteEmployee(employee);
             break;
   
           case "Exit":
@@ -422,12 +429,19 @@ function deleteDepartment(dept) {
 }
 
 function deleteRole(role) {
-  console.log("Deleting role: " + role);
-  showDepartments();
+  const query = "DELETE FROM role WHERE id = ?";
+  connection.query(query, [role.id], (err, res) => {
+    if (err) throw err;
+    showRoles(currentDept);
+  });
 }
 
 function deleteEmployee(employee) {
-  console.log("Deleting employee");
+  const query = "DELETE FROM employee WHERE id = ?";
+  connection.query(query, [employee.id], (err, res) => {
+    if (err) throw err;
+    showEmployeesByRole(currentRole);
+  });
 }
 
 function editFirstName(employee) {

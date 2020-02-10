@@ -10,11 +10,11 @@ App is launched with 'node index.js' after running 'npm install'.  Interaction i
 
 ## Opportunities for further Development
 
-There are a lot of update, delete, and display functions that I had expected to be able to implement already that are stubbed out but not yet implemented.  The options to run many of those functions are currently coded into the Inquirer prompts and the switch statements that handle user input, so some of the options that appear result in console log statements rather than the expected behavior.
+There are some update and display functions that I had expected to be able to implement already that are stubbed out but not yet implemented.  The options to run many of those functions are currently coded into the Inquirer prompts and the switch statements that handle user input, so some of the options that appear result in console log statements rather than the expected behavior.
 
 There is also more that I could do to enforce rules regarding managers, for example add a boolean is_management collumn to the roles table, which would allow me to only display appropriate options when adding/modifying an employees manager.
 
-
+There is a lot of code in the index.js file. I would like to go back and organize that a bit better by splitting some of it out into other files.
 
 ## Credits
 
