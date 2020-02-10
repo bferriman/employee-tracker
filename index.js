@@ -445,11 +445,49 @@ function deleteEmployee(employee) {
 }
 
 function editFirstName(employee) {
-  console.log("Editing first name");
+  inquirer
+  .prompt({
+    name: "firstName",
+    message: "New First Name:",
+    validate: function(input) {
+      if(input === "") {
+        return "First name is a required field";
+      }
+      else {
+        return true;
+      }
+    }  
+  })
+  .then( ({ firstName }) => {
+    const query = "UPDATE employee SET first_name = ? WHERE id = ?";
+    connection.query(query, [firstName, employee.id], (err, res) => {
+      if (err) throw err;
+      showEmployee(employee);
+    });
+  });
 }
 
 function editLastName(employee) {
-  console.log("Editing last name");
+  inquirer
+  .prompt({
+    name: "lastName",
+    message: "New Last Name:",
+    validate: function(input) {
+      if(input === "") {
+        return "Last name is a required field";
+      }
+      else {
+        return true;
+      }
+    }  
+  })
+  .then( ({ lastName }) => {
+    const query = "UPDATE employee SET last_name = ? WHERE id = ?";
+    connection.query(query, [lastName, employee.id], (err, res) => {
+      if (err) throw err;
+      showEmployee(employee);
+    });
+  });
 }
 
 function assignRole(employee) {
