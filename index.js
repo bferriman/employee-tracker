@@ -33,7 +33,7 @@ function showDepartments() {
     }
     else {
       console.table("Departments", res);
-      choices.splice(0, 0, "View a department", "Add a department", "Show all employees", "Exit");
+      choices.splice(0, 0, "View a department", "Add a department", "Exit");
     }
     console.log("-------------------");
 
@@ -52,10 +52,6 @@ function showDepartments() {
 
         case "Add a department":
           addDepartment();
-          break;
-    
-        case "Show all employees":
-          showAllEmployees();
           break;
       
         case "Exit":
@@ -104,7 +100,7 @@ function showRoles(dept) {
     }
     else {
       console.table(`${dept.name} Roles`, res);
-      choices.splice(0, 0, "View a role", "Add a role", "Show department employees", "Show department payroll", "Delete department", "Exit");
+      choices.splice(0, 0, "View a role", "Add a role", "Delete department", "Exit");
     }
     console.log("-------------------");
 
@@ -123,14 +119,6 @@ function showRoles(dept) {
 
         case "Add a role":
           addRole(dept);
-          break;
-    
-        case "Show department employees":
-          showDeptEmployees(dept);
-          break;
-      
-        case "Show department payroll":
-          showPayroll(dept);
           break;
 
         case "Delete department":
@@ -558,24 +546,4 @@ function assignManager(employee) {
       });
     });
   });
-}
-
-function showAllEmployees() {
-  console.log("Showing all employees");
-  showDepartments();
-}
-
-function showDeptEmployees(dept) {
-  console.log(`Showing employees for ${dept}`);
-  showDepartments();
-}
-
-function showEmployeesByManager(manager) {
-  console.log("Showing " + manager + "'s employees");
-  showDepartments();
-}
-
-function showPayroll(dept) {
-  console.log(`Showing payroll for ${dept}`);
-  showDepartments();
 }
