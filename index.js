@@ -19,7 +19,6 @@ connection.connect( err => {
 
 let currentDept = null;
 let currentRole = null;
-let currentEmp = null;
 
 function showDepartments() {
   console.log("*******************");
@@ -96,11 +95,11 @@ function showRoles(dept) {
     const choices = [];
     if(!res.length) {
       console.log("There are no roles for this department.");
-      choices.splice(0, 0, "Add a role", "Delete department", "Exit");
+      choices.splice(0, 0, "Add a role", "Delete department", "Back", "Exit");
     }
     else {
       console.table(`${dept.name} Roles`, res);
-      choices.splice(0, 0, "View a role", "Add a role", "Delete department", "Exit");
+      choices.splice(0, 0, "View a role", "Add a role", "Delete department", "Back", "Exit");
     }
     console.log("-------------------");
 
@@ -123,6 +122,10 @@ function showRoles(dept) {
 
         case "Delete department":
           deleteDepartment(dept);
+          break;
+
+        case "Back":
+          showDepartments();
           break;
 
         case "Exit":
@@ -177,11 +180,11 @@ function showEmployeesByRole(role) {
     const choices = [];
     if(!res.length) {
       console.log("There are no employees with that role.");
-      choices.splice(0, 0, "Add an employee", "Delete role", "Exit");
+      choices.splice(0, 0, "Add an employee", "Delete role", "Back", "Exit");
     }
     else {
       console.table(`${role.title} Employees`, res);
-      choices.splice(0, 0, "View an employee", "Add an employee", "Delete role", "Exit");
+      choices.splice(0, 0, "View an employee", "Add an employee", "Delete role", "Back", "Exit");
     }
     console.log("-------------------");
 
@@ -204,6 +207,10 @@ function showEmployeesByRole(role) {
     
         case "Delete role":
           deleteRole(role);
+          break;
+
+        case "Back":
+          showRoles(currentDept);
           break;
 
         case "Exit":
@@ -236,7 +243,6 @@ function selectEmployee(employees) {
     choices: emps
   })
   .then( ({ employee }) => {
-    curentEmp = employee;
     showEmployee(employee);
   });
 }
@@ -265,7 +271,7 @@ function showEmployee(employee) {
     else {
       console.table(`Employee Record`, res);
       console.log("-------------------");
-      const choices = ["Edit first name", "Edit last name", "Assign new role", "Assign new manager", "Delete employee", "Exit"];
+      const choices = ["Edit first name", "Edit last name", "Assign new role", "Assign new manager", "Delete employee", "Back", "Exit"];
 
       inquirer
       .prompt({
@@ -294,6 +300,10 @@ function showEmployee(employee) {
 
           case "Delete employee":
             deleteEmployee(employee);
+            break;
+
+          case "Back":
+            showEmployeesByRole(currentRole);
             break;
   
           case "Exit":
